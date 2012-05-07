@@ -1,11 +1,77 @@
+#define QT3_SUPPORT
+#include <QtCore>
+#include <QtNetwork>
+#include <iostream>
+
+int main(int argc, char* argv[])
+{
+    QCoreApplication app(argc, argv);
+    QTcpSocket socket;
+    socket.connectToHost("irc.worldnet.net", 6667);
+    QString chaine;
+    while(socket.waitForReadyRead() != true){}
+    chaine = socket.readAll();
+    std::cout<<chaine.toStdString();
+    socket.write("NICK QTcpSocket");
+    std::cout<<"NICK QTcpSocket\n";
+    socket.write("USER simpsonmaniac . . :?");
+    std::cout<<"USER simpsonmaniac\n";
+    while(socket.waitForReadyRead() != true){}
+    chaine.clear();
+    chaine = socket.readAll();
+    std::cout<<"\n"<<chaine.toStdString();
+    socket.write("JOIN #nc-irc-challs");
+    while(socket.waitForReadyRead() != true){}
+    chaine.clear();
+    chaine = socket.readAll();
+    socket.write("PRIVMSG Daneel :.challenge_asciiart start");
+    while(socket.waitForReadyRead() != true){}
+    chaine.clear();
+    chaine = socket.readAll();
+    std::cout<<"\n"<<chaine.toStdString();
+    std::cout<<"\nDone";
+    return app.exec();
+}
+
+
+
+
+
+
+/*
+
+#ifdef WIN32
+
+#include <winsock2.h>
+#pragma comment(lib, "ws2_32.lib")
+#define SocketErrno (WSAGetLastError())
+#define bcopy(src,dest,len) memmove(dest,src,len)
+
+#else
+
+#include <sys/socket.h>
+#include <sys/poll.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/select.h>
+
+#define SocketErrno errno
+
+#define SOCKET int
+#define SOCKET_ERROR -1
+#define INVALID_SOCKET -1
+
+
+#include <sys/types.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
+#endif
+
 #include <iostream>
 #include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <unistd.h>
+
+
 
 using namespace std;
 
@@ -15,6 +81,9 @@ int main(int argc, const char* argv[])
 
     int sockfd = socket(PF_INET, SOCK_STREAM, 0);
 
+	char buf[512];
+	int byte_count;
+	
     sock.sin_family = AF_INET;
     sock.sin_port = htons(6667);
     sock.sin_addr.s_addr = inet_addr("irc.worldnet.net");
@@ -24,24 +93,11 @@ int main(int argc, const char* argv[])
     char *msg = "USER myself 8 * : omgtest\nNICK omgtest\nJOIN #srl\n";
 
     send(sockfd, msg, strlen(msg), 0);
+	
+	// all right!  now that we're connected, we can receive some data!
+	byte_count = recv(sockfd, buf, sizeof buf, 0);
+	cout << "recv() : " << byte_count << endl;
+	
 }
 
-
-// stream sockets and recv()
-
-struct addrinfo hints, *res;
-int sockfd;
-char buf[512];
-int byte_count;
-
-// get host info, make socket, and connect it
-memset(&hints, 0, sizeof hints);
-hints.ai_family = AF_UNSPEC;  // use IPv4 or IPv6, whichever
-hints.ai_socktype = SOCK_STREAM;
-getaddrinfo("www.example.com", "3490", &hints, &res);
-sockfd = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
-connect(sockfd, res->ai_addr, res->ai_addrlen);
-
-// all right!  now that we're connected, we can receive some data!
-byte_count = recv(sockfd, buf, sizeof buf, 0);
-printf("recv()'d %d bytes of data in buf\n", byte_count);
+*/
