@@ -29,7 +29,10 @@ void displayList(QStringList list, string ds)
 {
 	QString str = "";
 	for(int l=0;l<list.size(); l++)
+	{
 		str.append(list[l]);
+		str.append("\r\n");
+	}
 	cout << ds << " : " << endl;
 	cout << str.toStdString() <<endl;
 	
