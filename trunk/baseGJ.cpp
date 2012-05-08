@@ -35,6 +35,7 @@ void displayList(QStringList list, string ds)
 	
 }
 //CONFIG += console
+//QT += network
 int main() {
 
 	QString filename = "test";
