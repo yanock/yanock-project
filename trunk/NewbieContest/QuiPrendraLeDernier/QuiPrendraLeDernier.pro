@@ -13,6 +13,6 @@ CONFIG += debug
 # Input
 
 win32:LIBS += D:\\yanock-project\\curl\\lib\\libcurldll.a
-unix:LIBS += -L/usr/local/lib -lmath
-
+#unix:LIBS += -L/usr/local/lib -lmath
+unix:LIBS += -L/usr/local/lib -lcurl
 SOURCES += QuiPrendraLeDernier.cpp
