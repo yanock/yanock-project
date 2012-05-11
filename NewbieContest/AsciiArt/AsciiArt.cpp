@@ -3,101 +3,121 @@
 #include <QtNetwork>
 #include <iostream>
 
+
+using namespace std;
+
+    
+  
+void displayList(QStringList list, string ds)
+{
+	QString str = "";
+	for(int l=0;l<list.size(); l++)
+	{
+		str.append(list[l]);
+		str.append("\r\n");
+	}
+	cout << ds << " : " << endl;
+	cout << str.toStdString() <<endl;
+	
+}
+     
+ 
+
+
 int main(int argc, char* argv[])
 {
+	cout << "debut" << endl;
     QCoreApplication app(argc, argv);
-    QTcpSocket socket;
-    socket.connectToHost("irc.worldnet.net", 6667);
-    QString chaine;
-    while(socket.waitForReadyRead() != true){}
-    chaine = socket.readAll();
-    std::cout<<chaine.toStdString();
-    socket.write("NICK QTcpSocket");
+    QTcpSocket *socket = new QTcpSocket(&app); 
+	//socket->connectToHost( "smtp.free.fr" , 25 );
+    socket->connectToHost("irc.worldnet.net", 6667);
+    cout << "1" << endl;
+	QString chaine1;
+	
+	
+	if (socket->waitForConnected(1000))
+		 cout << "Connected!" << endl;
+	else
+		 // cout << "nothing!" << endl;
+	
+	
+    while(socket->waitForReadyRead() != true){}
+    cout << "2" << endl;
+	chaine1 = socket->readAll();
+    std::cout<<chaine1.toStdString();
+    socket->write("NICK QTcpSocket");
     std::cout<<"NICK QTcpSocket\n";
-    socket.write("USER simpsonmaniac . . :?");
+    socket->write("USER simpsonmaniac . . :?");
     std::cout<<"USER simpsonmaniac\n";
-    while(socket.waitForReadyRead() != true){}
-    chaine.clear();
-    chaine = socket.readAll();
-    std::cout<<"\n"<<chaine.toStdString();
-    socket.write("JOIN #nc-irc-challs");
-    while(socket.waitForReadyRead() != true){}
-    chaine.clear();
-    chaine = socket.readAll();
-    socket.write("PRIVMSG Daneel :.challenge_asciiart start");
-    while(socket.waitForReadyRead() != true){}
-    chaine.clear();
-    chaine = socket.readAll();
-    std::cout<<"\n"<<chaine.toStdString();
-    std::cout<<"\nDone";
+	QString chaine;
+	string pass = "test";
+	bool continuer = true, envoyer = false;
+	while(socket->canReadLine()) // Boucle principale.
+	{
+		chaine = socket->readLine();
+		//Biohazard!Biohazard@ie.freebnc.net PRIVMSG #Biobot hi
+		if(chaine.startsWith("PING"))
+		{
+			std::cout << "PONG " << chaine.split(" ")[1].toStdString() << endl;
+			socket->write(("PONG " + chaine.split(" ")[1]).toStdString().c_str());
+		}
+		else if(chaine.startsWith(":NickServ!NickServ@")&&
+				chaine.contains("You have 30 seconds to identify to your nickname before it is changed."))
+		{
+			QString passCmd = "NICKSERV identify ";
+			passCmd.append(pass);
+			passCmd.append("\r\n")
+			socket->write(passCmd.toStdString().c_str());
+		}
+		else if(chaine.split(" ")[1]=="PRIVMSG")
+		{/*
+			QString command = CommandParser::getMessage(chaine);
+			if(command.split(" ")[0]=="@hello"&&permissions::getPermission("hello", CommandParser::getName(chaine)))
+			{
+				const QString text = "PRIVMSG " + CommandParser::getChannel(chaine) + ":hello world!\r\n";
+				socket->write(text.toStdString().c_str());
+			}
+			*/
+			cout << "else if" << endl;
+		}
+		
+		displayList(chaine, "liste")
+		
+	
+		cout << "coucou" << endl;
+	}
+	cout << "out" << endl;
+	continuer = true;
+	socket->write("JOIN #nc-irc-challs");
+
+	while(continuer)
+	{
+		while(socket->waitForReadyRead() != true){}
+		chaine1.clear();
+		chaine1 = socket->readAll();
+		std::cout<<"\n"<<chaine1.toStdString();
+		if(chaine1.contains("PING", Qt::CaseInsensitive))
+		{
+			socket->write("PONG");
+			continuer = false;
+		}
+		else if(!envoyer)
+		{
+			socket->write("PRIVMSG Daneel :.challenge_asciiart start");
+		
+		}
+		
+	}
+	
+	
+	
+	socket->write("bye bye\r\n");
+    socket->flush();
+    socket->disconnect();
+	
+	
     return app.exec();
 }
 
 
 
-
-
-
-/*
-
-#ifdef WIN32
-
-#include <winsock2.h>
-#pragma comment(lib, "ws2_32.lib")
-#define SocketErrno (WSAGetLastError())
-#define bcopy(src,dest,len) memmove(dest,src,len)
-
-#else
-
-#include <sys/socket.h>
-#include <sys/poll.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <sys/select.h>
-
-#define SocketErrno errno
-
-#define SOCKET int
-#define SOCKET_ERROR -1
-#define INVALID_SOCKET -1
-
-
-#include <sys/types.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-
-#endif
-
-#include <iostream>
-#include <string.h>
-
-
-
-using namespace std;
-
-int main(int argc, const char* argv[])
-{
-    struct sockaddr_in sock;
-
-    int sockfd = socket(PF_INET, SOCK_STREAM, 0);
-
-	char buf[512];
-	int byte_count;
-	
-    sock.sin_family = AF_INET;
-    sock.sin_port = htons(6667);
-    sock.sin_addr.s_addr = inet_addr("irc.worldnet.net");
-
-    int c = connect(sockfd, (struct sockaddr*)&sock, sizeof sock);
-
-    char *msg = "USER myself 8 * : omgtest\nNICK omgtest\nJOIN #srl\n";
-
-    send(sockfd, msg, strlen(msg), 0);
-	
-	// all right!  now that we're connected, we can receive some data!
-	byte_count = recv(sockfd, buf, sizeof buf, 0);
-	cout << "recv() : " << byte_count << endl;
-	
-}
-
-*/
