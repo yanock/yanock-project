@@ -2,13 +2,22 @@ from pprint import pprint as pp
 
 continuer = True;
 
-def move(pgameBoard, pposition, pdirection):
+def move(pgameBoard, pposition, pdirection, ptypeTest):
 	position = {}
 	position[1] = {"x": pposition["x"], "y": pposition["y"]-1}
 	position[2] = {"x": pposition["x"]+1, "y": pposition["y"]}
 	position[3] = {"x": pposition["x"], "y": pposition["y"]+1}
 	position[4] = {"x": pposition["x"]-1, "y": pposition["y"]}
 	
+	if ptypeTest == "right":
+		deplacementTest = ["right", "up", "left", "down"]
+	elif ptypeTest == "left":
+		deplacementTest = ["left", "up", "right", "down"]
+	elif ptypeTest == "up":
+		deplacementTest = ["up", "right", "left", "coucou"] #a revoir
+	elif ptypeTest == "down":
+		deplacementTest = ["right", "up", "left", "coucou"] #a revoir
+		
 	if pdirection == "up":
 		directionTest = {"up":1, "right":2, "down":3, "left":4}
 		newDirection = {"up":"up", "right":"right", "down":"down", "left":"left"}
@@ -22,18 +31,21 @@ def move(pgameBoard, pposition, pdirection):
 		directionTest = {"up":4, "right":1, "down":2, "left":3}
 		newDirection = {"up":"left", "right":"up", "down":"right", "left":"down"}
 		
-	
-	if(checkValue(position[directionTest["right"]]["y"], len(gameBoard), position[directionTest["right"]]["x"], len(gameBoard[0])) and (checkPath(pgameBoard, position, directionTest, "right", "_") or checkPath(pgameBoard, position, directionTest, "right", "1"))):
-		pgameBoard, pposition, pdirection = doMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, "right")
-	elif(checkValue(position[directionTest["up"]]["y"], len(gameBoard), position[directionTest["up"]]["x"], len(gameBoard[0])) and (checkPath(pgameBoard, position, directionTest, "up", "_") or checkPath(pgameBoard, position, directionTest, "up", "1"))):
-		pgameBoard, pposition, pdirection = doMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, "up")
-	elif(checkValue(position[directionTest["left"]]["y"], len(gameBoard), position[directionTest["left"]]["x"], len(gameBoard[0])) and (checkPath(pgameBoard, position, directionTest, "left", "_") or checkPath(pgameBoard, position, directionTest, "left", "1"))):
-		pgameBoard, pposition, pdirection = doMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, "left")
-	else:
-		pgameBoard, pposition, pdirection = doMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, "down")
+	for deplacement in deplacementTest:
+		pgameBoard, pposition, pdirection, ok = testMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, deplacement)
+		if ok:
+			break
 		
 	return pgameBoard, pposition, pdirection
-
+	
+def testMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, move):
+	
+	
+	if(checkValue(position[directionTest[move]]["y"], len(gameBoard), position[directionTest[move]]["x"], len(gameBoard[0])) and (checkPath(pgameBoard, position, directionTest, move, "_") or checkPath(pgameBoard, position, directionTest, move, "1"))):
+		pgameBoard, pposition, pdirection = doMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, move)
+		return pgameBoard, pposition, pdirection, True
+	else: return pgameBoard, pposition, pdirection, False
+	
 def doMove(pgameBoard, pposition, pdirection, directionTest, newDirection, position, move):
 	global continuer
 	
@@ -52,13 +64,15 @@ def checkValue(position_y, taille_tableau, position_x, taille_ligne):
 
 
 def checkPath(pgameBoard, position, directionTest, case, compar):
-	return (pgameBoard[position[directionTest[case]]["y"]][position[directionTest[case]]["x"]] == compar)
+	return pgameBoard[position[directionTest[case]]["y"]][position[directionTest[case]]["x"]] == compar
+	
 
 character = "0"
 goal = "1"
 position = {"x": 0, "y": 0}
 gameBoard = []
 direction = "right"
+typeTest = "left"
 i = 0
 with open("exemple.txt", "r") as file:
 	for line in file:
@@ -74,7 +88,7 @@ with open("exemple.txt", "r") as file:
 		i+=1
 
 while continuer != False:
-	gameBoard, position, direction = move(gameBoard, position, direction)
+	gameBoard, position, direction = move(gameBoard, position, direction, typeTest)
 	pp(gameBoard)
 	raw_input("suite?")
 
