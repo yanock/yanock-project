@@ -66,7 +66,11 @@ def checkValue(position_y, taille_tableau, position_x, taille_ligne):
 def checkPath(pgameBoard, position, directionTest, case, compar):
 	return pgameBoard[position[directionTest[case]]["y"]][position[directionTest[case]]["x"]] == compar
 	
+def rendu_gameboard(gameBoard, position, direction)
 
+	
+	
+	
 character = "0"
 goal = "1"
 position = {"x": 0, "y": 0}
@@ -89,7 +93,8 @@ with open("exemple.txt", "r") as file:
 
 while continuer != False:
 	gameBoard, position, direction = move(gameBoard, position, direction, typeTest)
-	pp(gameBoard)
+	#pp(gameBoard)
+	rendu_gameboard(gameBoard, position, direction)
 	raw_input("suite?")
 
 
