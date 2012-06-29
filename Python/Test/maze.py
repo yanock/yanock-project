@@ -20,27 +20,27 @@ class Maze:
 		return "start: %r; stop: %r" % (self.start, self.stop)
 	
 	def wall(self, i, j, where):
-		if where not in ('?', '?', '?', '?'):
+		if where not in ('↑', '←', '↓', '→'):
 			raise Exception('I don\'t understand "wall %r"!' % where)
 		
-		return not ((where == '?' and j > 0 and self.map[j - 1][i] != 1) or
-			(where == '?' and i > 0 and self.map[j][i - 1] != 1) or
-			(where == '?' and j < len(map) - 1 and self.map[j + 1][i] != 1) or
-			(where == '?' and i < len(map[0]) - 1 and self.map[j][i + 1] != 1))
+		return not ((where == '↑' and j > 0 and self.map[j - 1][i] != 1) or
+			(where == '←' and i > 0 and self.map[j][i - 1] != 1) or
+			(where == '↓' and j < len(map) - 1 and self.map[j + 1][i] != 1) or
+			(where == '→' and i < len(map[0]) - 1 and self.map[j][i + 1] != 1))
 
 class LostGuy:
 	map = {
-		'?': {'?': '?', '?': '?', '?': '?', '?': '?'},
-		'?': {'?': '?', '?': '?', '?': '?', '?': '?'},
-		'?': {'?': '?', '?': '?', '?': '?', '?': '?'},
-		'?': {'?': '?', '?': '?', '?': '?', '?': '?'},
+		'↑': {'↑': '↑', '←': '←', '↓': '↓', '→': '→'},
+		'←': {'↑': '←', '←': '↓', '↓': '→', '→': '↑'},
+		'↓': {'↑': '↓', '←': '→', '↓': '↑', '→': '←'},
+		'→': {'↑': '→', '←': '↑', '↓': '←', '→': '↓'},
 	}
 	
 	def __init__(self, maze):
 		self.maze = maze
 		self.x = maze.start['x']
 		self.y = maze.start['y']
-		self.direction = '?'
+		self.direction = '↑'
 	
 	def __repr__(self):
 		return "x: %r; y: %r; finish: %r; direction: %s; wall: %r" % (
@@ -50,7 +50,7 @@ class LostGuy:
 			self.direction,
 			[self.wall(where)
 				for where
-				in ('?', '?', '?', '?')
+				in ('↑', '←', '↓', '→')
 			]
 		)
 	
@@ -61,7 +61,7 @@ class LostGuy:
 		return self.maze.wall(self.x, self.y, self.translate_direction(where))
 	
 	def turn(self, where):
-		if where not in ('?', '?'):
+		if where not in ('←', '→'):
 			raise Exception('I don\'t understand "turn %r"!' % where)
 		
 		self.direction = self.translate_direction(where)
@@ -69,7 +69,7 @@ class LostGuy:
 		return True
 	
 	def move(self, where):
-		if where not in ('?', '?'):
+		if where not in ('↑', '↓'):
 			raise Exception('I don\'t understand "move %r"!' % where)
 		
 		if self.wall(where):
@@ -77,13 +77,13 @@ class LostGuy:
 		
 		dir = self.translate_direction(where)
 		
-		if dir == '?':
+		if dir == '↑':
 			self.y -= 1
-		elif dir == '?':
+		elif dir == '←':
 			self.x -= 1
-		elif dir == '?':
+		elif dir == '↓':
 			self.y += 1
-		elif dir == '?':
+		elif dir == '→':
 			self.x += 1
 		
 		return True
@@ -111,16 +111,16 @@ if __name__ == '__main__':
 	print('')
 	
 	while not guy.finish():
-		while not guy.wall('?'):
-			print('move ?')
-			guy.move('?')
+		while not guy.wall('↑'):
+			print('move ↑')
+			guy.move('↑')
 			pp(guy)
 			
-			if not guy.wall('?'):
-				print('turn ?')
-				guy.turn('?')
+			if not guy.wall('←'):
+				print('turn ←')
+				guy.turn('←')
 				pp(guy)
 		
-		print('turn ?')
-		guy.turn('?')
+		print('turn →')
+		guy.turn('→')
 		pp(guy)
