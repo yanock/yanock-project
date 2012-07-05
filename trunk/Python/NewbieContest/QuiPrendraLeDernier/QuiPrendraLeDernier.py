@@ -47,6 +47,10 @@ print f.read()
 """
 
 import urllib2
+from time import time 
+
+start = time()
+
 opener = urllib2.build_opener()
 nc_url = "http://www.newbiecontest.org/epreuves/prog/prog14.php"
 phpsessid = '2f70ed49070270713647390d9adf5b79'
@@ -54,6 +58,7 @@ smfcookie89 = 'a%3A4%3A%7Bi%3A0%3Bs%3A4%3A%227230%22%3Bi%3A1%3Bs%3A40%3A%224901e
 cookie = 'admin=0; PHPSESSID=%s; SMFCookie89=%s' % (phpsessid, smfcookie89)
 opener.addheaders.append(('Cookie', cookie))
 f = opener.open(nc_url)
+print ("compteur : %d" % (start - time()))
 print f.read()
 
 
